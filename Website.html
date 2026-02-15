@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MCF - My CRM Fix</title>
-    <!-- Google Fonts for modern typography -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -17,15 +16,16 @@
             font-family: 'Roboto', sans-serif;
             color: white;
             overflow-x: hidden;
-            background-color: #000; /* Fallback */
+            background-color: #000;
+            cursor: crosshair; /* Indicates you can click */
         }
 
-        /* --- BACKGROUND ANIMATION LAYER (FIXED) --- */
+        /* --- BACKGROUND (Fixed) --- */
         #space-background {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: -1; /* Behind everything */
+            z-index: -1;
             background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
             overflow: hidden;
             perspective: 1000px;
@@ -44,14 +44,13 @@
             opacity: 0.5;
         }
 
-        /* --- SPACE OBJECTS (Planets/Asteroids) --- */
+        /* --- SPACE OBJECTS --- */
         .space-object {
             position: absolute;
             z-index: 1;
-            /* Mask edges for seamless blending */
             -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
             mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
-            pointer-events: none; /* Let clicks pass through */
+            pointer-events: none;
         }
 
         .planet-img {
@@ -75,14 +74,12 @@
             opacity: 0.8;
             pointer-events: none;
         }
-        /* Fallback asteroid shape */
         .asteroid.fallback {
             background: #5a5a5a;
             clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
             box-shadow: inset -2px -2px 5px rgba(0,0,0,0.5);
         }
 
-        /* --- ANIMATIONS --- */
         @keyframes float-planet {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(2deg); }
@@ -97,9 +94,58 @@
             to { transform: translateX(-100px); opacity: 0; }
         }
 
+        /* --- LION AVATAR (Interactive) --- */
+        #lion-avatar {
+            position: fixed; /* Fixed so it flies relative to screen, not scroll */
+            top: 50%; 
+            left: 50%;
+            width: 150px;
+            height: 150px;
+            transform: translate(-50%, -50%); /* Centers it initially */
+            z-index: 1000; /* Always on top */
+            transition: top 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                        left 1.5s cubic-bezier(0.25, 1, 0.5, 1),
+                        transform 0.5s;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+            pointer-events: none; /* Let clicks pass through so you can click buttons */
+        }
+
+        /* Image Container (Round Mask) */
+        .lion-img-container {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+            border: 3px solid rgba(255,255,255,0.5);
+        }
+
+        .lion-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* MCF Text Overlay */
+        .mcf-badge {
+            position: absolute;
+            bottom: 25px; /* Adjusted to sit on chest area */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #e74c3c;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 16px;
+            padding: 2px 8px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
         /* --- WEBSITE CONTENT --- */
-        
-        /* Navbar */
         nav {
             position: fixed;
             top: 0;
@@ -114,36 +160,12 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
-        .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 900;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .nav-links a {
-            color: #ccc;
-            text-decoration: none;
-            margin-left: 30px;
-            font-size: 16px;
-            transition: color 0.3s;
-        }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .nav-links a { color: #ccc; text-decoration: none; margin-left: 30px; font-size: 16px; transition: color 0.3s; pointer-events: auto; }
         .nav-links a:hover { color: #f1c40f; }
-        .btn-cta {
-            padding: 10px 25px;
-            background: #e74c3c;
-            color: white;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-left: 30px;
-            transition: transform 0.2s;
-        }
+        .btn-cta { padding: 10px 25px; background: #e74c3c; color: white; border-radius: 30px; text-decoration: none; font-weight: bold; margin-left: 30px; transition: transform 0.2s; pointer-events: auto; }
         .btn-cta:hover { transform: scale(1.05); background: #c0392b; }
 
-        /* Hero Section */
         .hero-section {
             height: 100vh;
             display: flex;
@@ -155,101 +177,44 @@
             z-index: 10;
         }
         
-        .hero-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4rem;
-            margin-top: 20px;
-            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
-        }
-        
-        .hero-subtitle {
-            font-size: 1.5rem;
-            color: #aaa;
-            margin-bottom: 40px;
-            max-width: 600px;
-        }
+        /* Spacer for the lion initial position */
+        .lion-spacer { width: 150px; height: 150px; margin-bottom: 20px; }
 
-        /* Lion Mascot */
-        .lion-wrapper {
-            width: 200px;
-            height: 240px;
-            animation: float-lion 4s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(255,255,255,0.2));
-            margin-bottom: 20px;
-        }
-        @keyframes float-lion {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
+        .hero-title { font-family: 'Orbitron', sans-serif; font-size: 4rem; margin-top: 20px; text-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
+        .hero-subtitle { font-size: 1.5rem; color: #aaa; margin-bottom: 40px; max-width: 600px; }
 
-        /* Content Sections (Glassmorphism) */
-        .content-section {
-            padding: 100px 50px;
-            position: relative;
-            z-index: 10;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 50px;
-            margin-bottom: 50px;
-        }
+        .content-section { padding: 100px 50px; position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 50px; margin-bottom: 50px; }
+        h2 { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; margin-bottom: 40px; border-left: 5px solid #e74c3c; padding-left: 20px; }
 
-        h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
-            margin-bottom: 40px;
-            border-left: 5px solid #e74c3c;
-            padding-left: 20px;
-        }
-
-        /* Grid for Services */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .service-item {
-            background: rgba(0,0,0,0.3);
-            padding: 30px;
-            border-radius: 15px;
-            transition: transform 0.3s;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .service-item { background: rgba(0,0,0,0.3); padding: 30px; border-radius: 15px; transition: transform 0.3s; border: 1px solid rgba(255,255,255,0.05); }
         .service-item:hover { transform: translateY(-10px); border-color: #e74c3c; }
-        
         .service-icon { font-size: 40px; margin-bottom: 20px; }
         .service-item h3 { margin-bottom: 15px; color: #f1c40f; }
         .service-item p { line-height: 1.6; color: #ccc; }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 50px;
-            background: rgba(0,0,0,0.8);
-            position: relative;
-            z-index: 10;
-            color: #777;
-        }
+        footer { text-align: center; padding: 50px; background: rgba(0,0,0,0.8); position: relative; z-index: 10; color: #777; }
     </style>
 </head>
 <body>
 
-    <!-- 1. FIXED SPACE BACKGROUND -->
+    <!-- 1. SPACE BACKGROUND -->
     <div id="space-background">
-        <!-- Images -->
         <img src="https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/Planet1.jpg" class="space-object planet-img">
         <img src="https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/blackhole1.jpg" class="space-object blackhole-img">
-        <!-- JS will add stars/asteroids here -->
     </div>
 
-    <!-- 2. NAVIGATION -->
+    <!-- 2. FLYING LION COMPONENT -->
+    <div id="lion-avatar">
+        <div class="lion-img-container">
+            <!-- Using the RAW link for lioncub2.jpg -->
+            <img src="https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/lioncub2.jpg" alt="Flying Lion" class="lion-img">
+        </div>
+        <div class="mcf-badge">MCF</div>
+    </div>
+
+    <!-- 3. NAVIGATION -->
     <nav>
         <div class="logo">MCF<span style="color:#e74c3c">.Space</span></div>
         <div class="nav-links">
@@ -260,40 +225,16 @@
         </div>
     </nav>
 
-    <!-- 3. HERO SECTION -->
+    <!-- 4. HERO -->
     <section class="hero-section" id="home">
-        <!-- Lion SVG Code -->
-        <div class="lion-wrapper">
-            <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-                <!-- Flame -->
-                <path d="M70 200 L90 230 L110 200 Z" fill="#e67e22">
-                    <animate attributeName="d" values="M70 200 L90 230 L110 200 Z; M70 200 L90 245 L110 200 Z; M70 200 L90 230 L110 200 Z" dur="0.15s" repeatCount="indefinite"/>
-                </path>
-                <!-- Suit -->
-                <rect x="50" y="100" width="100" height="110" rx="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
-                <!-- Head -->
-                <circle cx="100" cy="70" r="45" fill="#d35400" stroke="#a04000" stroke-width="2"/>
-                <circle cx="100" cy="70" r="30" fill="#f1c40f" />
-                <circle cx="90" cy="65" r="3" fill="#2c3e50" />
-                <circle cx="110" cy="65" r="3" fill="#2c3e50" />
-                <path d="M95 75 Q100 80 105 75" stroke="#2c3e50" fill="transparent" stroke-width="2" stroke-linecap="round"/>
-                <!-- Helmet -->
-                <circle cx="100" cy="70" r="50" fill="rgba(52, 152, 219, 0.3)" stroke="#3498db" stroke-width="3" />
-                <path d="M70 50 Q85 35 110 40" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <!-- Badge -->
-                <rect x="70" y="130" width="60" height="40" rx="5" fill="#fff" stroke="#95a5a6" stroke-width="2"/>
-                <text x="100" y="159" font-family="Verdana" font-weight="bold" font-size="24" fill="#e74c3c" text-anchor="middle">MCF</text>
-                <!-- Arms -->
-                <rect x="15" y="115" width="35" height="70" rx="10" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3" transform="rotate(25 15 115)"/>
-                <rect x="150" y="115" width="35" height="70" rx="10" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3" transform="rotate(-25 150 115)"/>
-            </svg>
-        </div>
-
+        <!-- Transparent spacer so text starts below where lion initially sits -->
+        <div class="lion-spacer"></div>
         <h1 class="hero-title">My CRM Fix</h1>
         <p class="hero-subtitle">Navigating the complexities of Customer Relationships with interstellar precision.</p>
+        <p style="font-size: 0.9rem; color: #666;">(Click anywhere to command the pilot)</p>
     </section>
 
-    <!-- 4. SERVICES SECTION -->
+    <!-- 5. SERVICES -->
     <section class="content-section" id="services">
         <div class="glass-card">
             <h2>Our Mission Protocols</h2>
@@ -301,52 +242,75 @@
                 <div class="service-item">
                     <div class="service-icon">🚀</div>
                     <h3>Implementation</h3>
-                    <p>Rapid deployment of CRM systems tailored to your galactic coordinates. We ensure a smooth lift-off for your sales team.</p>
+                    <p>Rapid deployment of CRM systems tailored to your galactic coordinates.</p>
                 </div>
                 <div class="service-item">
                     <div class="service-icon">🛠️</div>
                     <h3>System Repair</h3>
-                    <p>Fixing broken pipelines and data leaks. Our engineers are equipped to handle any anomaly in your database.</p>
+                    <p>Fixing broken pipelines and data leaks with zero-gravity precision.</p>
                 </div>
                 <div class="service-item">
                     <div class="service-icon">📊</div>
                     <h3>Data Migration</h3>
-                    <p>Safe transfer of your critical data across the void. Zero loss, maximum integrity during the warp jump.</p>
+                    <p>Safe transfer of your critical data across the void. Zero loss.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 5. ABOUT SECTION -->
+    <!-- 6. ABOUT -->
     <section class="content-section" id="about">
         <div class="glass-card" style="display:flex; align-items:center; gap:40px; flex-wrap:wrap;">
             <div style="flex:1;">
                 <h2>About The Pilot</h2>
                 <p style="line-height:1.8; font-size:1.1rem; color:#ddd;">
                     We are a team of space-faring developers dedicated to fixing the most complex CRM issues in the universe. 
-                    Like an astronaut relies on their suit, you rely on your CRM. We ensure it's airtight, efficient, and ready for exploration.
                 </p>
                 <br>
                 <a href="#contact" class="btn-cta" style="margin-left:0">Contact Base Command</a>
             </div>
-            <!-- Optional placeholder for a team photo or graphic -->
             <div style="flex:1; height:300px; background:rgba(0,0,0,0.3); border-radius:15px; display:flex; justify-content:center; align-items:center; border:1px dashed #555;">
                 <span style="color:#555">Mission Control Visual</span>
             </div>
         </div>
     </section>
 
-    <!-- 6. FOOTER -->
-    <footer id="contact">
+    <footer>
         <p>&copy; 2025 My CRM Fix. All systems nominal.</p>
-        <p style="font-size:12px; margin-top:10px; opacity:0.5">Transmitting from Bengaluru, KA, IN</p>
     </footer>
 
-    <!-- JAVASCRIPT FOR STARS/ASTEROIDS -->
+    <!-- JAVASCRIPT -->
     <script>
         const bg = document.getElementById('space-background');
+        const lion = document.getElementById('lion-avatar');
 
-        // Create Moving Stars
+        // 1. CLICK TO FLY LOGIC
+        document.addEventListener('click', (e) => {
+            // Get click coordinates
+            const x = e.clientX;
+            const y = e.clientY;
+
+            // Move lion to those coordinates
+            // We subtract 75px (half width/height) to center the lion on the click
+            lion.style.left = x + 'px';
+            lion.style.top = y + 'px';
+            
+            // Add a little "banking" rotation for effect
+            // If clicking right, tilt right. Left, tilt left.
+            const currentX = lion.getBoundingClientRect().left;
+            let rotation = 0;
+            if (x > currentX) rotation = 15;
+            else rotation = -15;
+
+            lion.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+            
+            // Reset rotation after flight
+            setTimeout(() => {
+                lion.style.transform = `translate(-50%, -50%) rotate(0deg)`;
+            }, 1000);
+        });
+
+        // 2. STARS
         function createStars() {
             for(let i=0; i<60; i++) {
                 let star = document.createElement('div');
@@ -359,37 +323,26 @@
                 star.style.top = Math.random() * 100 + '%';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.opacity = Math.random();
-                
-                // Add animation
                 let duration = Math.random() * 3 + 2 + 's';
                 let delay = Math.random() * 5 + 's';
                 star.style.animation = `star-fly ${duration} linear infinite ${delay}`;
-                
                 bg.appendChild(star);
             }
         }
 
-        // Create Asteroids
+        // 3. ASTEROIDS
         function createAsteroids() {
             for(let i=0; i<6; i++) {
                 let asteroid = document.createElement('div');
-                asteroid.className = 'asteroid fallback'; // Default to fallback shape
-                
-                // Random Size/Pos
+                asteroid.className = 'asteroid fallback'; 
                 let size = Math.random() * 40 + 20 + 'px';
                 asteroid.style.width = size;
                 asteroid.style.height = size;
-                asteroid.style.top = Math.random() * 100 + '%';
-                
-                // Animate
                 let duration = Math.random() * 10 + 10 + 's';
-                
-                // Unique flight path
                 let style = document.createElement('style');
                 let keyframeName = `fly-${i}`;
                 let startY = Math.random() * 100;
                 let endY = startY + (Math.random() * 20 - 10);
-                
                 style.innerHTML = `
                     @keyframes ${keyframeName} {
                         from { left: 110%; top: ${startY}%; transform: rotate(0deg); }
@@ -397,10 +350,8 @@
                     }
                 `;
                 document.head.appendChild(style);
-                
                 asteroid.style.animation = `${keyframeName} ${duration} linear infinite`;
                 asteroid.style.animationDelay = Math.random() * 5 + 's';
-                
                 bg.appendChild(asteroid);
             }
         }
