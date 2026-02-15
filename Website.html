@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCF Space Mission - Image Version</title>
+    <title>MCF Space Mission</title>
     <style>
         /* --- CSS STYLES --- */
         body, html {
@@ -24,7 +24,7 @@
             perspective: 1000px;
         }
 
-        /* --- STARS --- */
+        /* --- STARS & ASTEROIDS --- */
         .star {
             position: absolute;
             background: white;
@@ -135,26 +135,32 @@
 <body>
 
     <div id="space-container">
-        <!-- Replaced CSS Planets with your Images -->
-        <img src="Planet1.jpg" alt="Saturn Planet" class="space-object planet-img">
-        <img src="blackhole1.jpg" alt="Gargantua Black Hole" class="space-object blackhole-img">
+        <!-- CORRECTED IMAGE LINKS (Using RAW GitHub URLs) -->
+        <img src="https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/Planet1.jpg" alt="Saturn Planet" class="space-object planet-img">
+        <img src="https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/blackhole1.jpg" alt="Gargantua Black Hole" class="space-object blackhole-img">
     </div>
 
     <!-- Lion Astronaut -->
     <div class="lion-container">
         <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+            <!-- Jetpack Flames -->
             <path d="M70 200 L90 230 L110 200 Z" fill="orange" opacity="0.8">
                 <animate attributeName="d" values="M70 200 L90 230 L110 200 Z; M70 200 L90 240 L110 200 Z; M70 200 L90 230 L110 200 Z" dur="0.2s" repeatCount="indefinite"/>
             </path>
+            <!-- Body -->
             <rect x="50" y="100" width="100" height="110" rx="20" fill="#e0e0e0" stroke="#999" stroke-width="2"/>
+            <!-- Head -->
             <circle cx="100" cy="70" r="45" fill="#d35400" />
             <circle cx="100" cy="70" r="30" fill="#f1c40f" />
             <circle cx="90" cy="65" r="3" fill="black" />
             <circle cx="110" cy="65" r="3" fill="black" />
             <path d="M95 75 Q100 80 105 75" stroke="black" fill="transparent" stroke-width="2"/>
+            <!-- Helmet -->
             <circle cx="100" cy="70" r="50" fill="rgba(135, 206, 235, 0.4)" stroke="#add8e6" stroke-width="2" />
+            <!-- Chest Plate -->
             <rect x="70" y="130" width="60" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="1"/>
             <text x="100" y="158" class="mcf-text">MCF</text>
+            <!-- Arms -->
             <rect x="20" y="110" width="30" height="80" rx="10" fill="#e0e0e0" transform="rotate(20 20 110)"/>
             <rect x="150" y="110" width="30" height="80" rx="10" fill="#e0e0e0" transform="rotate(-20 150 110)"/>
         </svg>
@@ -167,7 +173,7 @@
             const staticStarCount = 150;
             const asteroidCount = 5;
 
-            // 1. Moving "Warp" Stars
+            // 1. Moving Stars
             for (let i = 0; i < movingStarCount; i++) {
                 let star = document.createElement('div');
                 star.className = 'star';
@@ -181,7 +187,7 @@
                 container.appendChild(star);
             }
 
-            // 2. Stationary Blinking Stars
+            // 2. Static Blinking Stars
             for (let i = 0; i < staticStarCount; i++) {
                 let star = document.createElement('div');
                 star.className = 'static-star';
@@ -207,7 +213,6 @@
                 container.appendChild(asteroid);
             }
         }
-
         createSpaceObjects();
     </script>
 </body>
