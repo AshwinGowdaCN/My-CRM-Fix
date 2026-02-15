@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCF Space Mission - Realistic</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #space-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            perspective: 1000px;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+        }
+
+        .space-object {
+            position: absolute;
+            z-index: 2;
+            object-fit: cover;
+            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
+            mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
+        }
+
+        .planet-img {
+            top: -5%;
+            right: -5%;
+            width: 450px;
+            height: 450px;
+            opacity: 1;
+            animation: float-planet 20s ease-in-out infinite;
+        }
+
+        .blackhole-img {
+            bottom: -5%;
+            left: -5%;
+            width: 500px;
+            height: 400px;
+            opacity: 1;
+            animation: pulse-hole 15s infinite alternate;
+        }
+
+        @keyframes float-planet {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes pulse-hole {
+            0% { transform: scale(1) rotate(-2deg); filter: brightness(1); }
+            100% { transform: scale(1.02) rotate(2deg); filter: brightness(1.1); }
+        }
+
+        .asteroid {
+            position: absolute;
+            z-index: 3;
+            background-image: url('https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/asteroid.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.8;
+            background-color: transparent;
+        }
+        
+        .asteroid.fallback {
+            background: #5a5a5a;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.6);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+        }
+
+        .lion-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-20px); }
+            100% { transform: translate(-50%, -50%) translateY(0px); }
+        }
+
+        svg {
+            width: 320px; height: auto;
+        }
+
+        .mcf-text {
+            font-family: 'Verdana', sans-serif;
+            font-weight: 900;
+            font-size: 26px;
+            fill: #e74c3c;
+            text-anchor: middle;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="space-container">
+        <img src="https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/Planet1.jpg" alt="Saturn Planet" class="space-object planet-img">
+        <img src="https://raw.githubusercontent.com/AshwinGowdaCN/My-CRM-Fix/main/blackhole1.jpg" alt="Gargantua Black Hole" class="space-object blackhole-img">
+    </div>
+
+    <div class="lion-container">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+            <path d="M70 200 L90 230 L110 200 Z" fill="#e67e22">
+                <animate attributeName="d" values="M70 200 L90 230 L110 200 Z; M70 200 L90 245 L110 200 Z; M70 200 L90 230 L110 200 Z" dur="0.15s" repeatCount="indefinite"/>
+                <animate attributeName="fill" values="#e67e22; #f1c40f; #e67e22" dur="0.15s" repeatCount="indefinite"/>
+            </path>
+            
+            <rect x="50" y="100" width="100" height="110" rx="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
+            
+            <circle cx="100" cy="70" r="45" fill="#d35400" stroke="#a04000" stroke-width="2"/>
+            
+            <circle cx="100" cy="70" r="30" fill="#f1c40f" />
+            
+            <circle cx="90" cy="65" r="3" fill="#2c3e50" />
+            <circle cx="110" cy="65" r="3" fill="#2c3e50" />
+            <path d="M95 75 Q100 80 105 75" stroke="#2c3e50" fill="transparent" stroke-width="2" stroke-linecap="round"/>
+            
+            <circle cx="100" cy="70" r="50" fill="rgba(52, 152, 219, 0.3)" stroke="#3498db" stroke-width="3" />
+            <path d="M70 50 Q85 35 110 40" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            
+            <rect x="70" y="130" width="60" height="40" rx="5" fill="#fff" stroke="#95a5a6" stroke-width="2"/>
+            <text x="100" y="159" class="mcf-text">MCF</text>
+            
+            <rect x="15" y="115" width="35" height="70" rx="10" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3" transform="rotate(25 15 115)"/>
+            <rect x="150" y="115" width="35" height="70" rx="10" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3" transform="rotate(-25 150 115)"/>
+        </svg>
+    </div>
+
+    <script>
+        function createSpaceObjects() {
+            const container = document.getElementById('space-container');
+            const asteroidCount = 8;
+
+            for (let i = 0; i < asteroidCount; i++) {
+                let asteroid = document.createElement('div');
+                
+                asteroid.className = 'asteroid fallback'; 
+                
+                asteroid.style.left = '110vw'; 
+                asteroid.style.top = Math.random() * 100 + 'vh';
+                
+                let scale = Math.random() * 0.8 + 0.2;
+                let sizeBase = 60;
+                let size = sizeBase * scale + 'px';
+                
+                asteroid.style.width = size;
+                asteroid.style.height = size;
+                
+                asteroid.style.opacity = scale * 0.8 + 0.2; 
+                
+                if (scale < 0.5) {
+                    asteroid.style.filter = 'blur(1px)';
+                }
+
+                let duration = (Math.random() * 10 + 10) + 's';
+                
+                let uniqueName = 'fly-' + i;
+                let rotStart = Math.random() * 360;
+                let rotEnd = rotStart + 360 + (Math.random() * 360);
+                
+                let styleSheet = document.createElement("style");
+                styleSheet.innerText = `
+                    @keyframes ${uniqueName} {
+                        from { transform: translateX(0vw) rotate(${rotStart}deg); }
+                        to { transform: translateX(-120vw) rotate(${rotEnd}deg); }
+                    }
+                `;
+                document.head.appendChild(styleSheet);
+                
+                asteroid.style.animation = `${uniqueName} ${duration} linear infinite`;
+                asteroid.style.animationDelay = '-' + (Math.random() * 20) + 's'; 
+
+                container.appendChild(asteroid);
+            }
+        }
+
+        createSpaceObjects();
+    </script>
+</body>
+</html>
