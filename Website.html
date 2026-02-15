@@ -1,288 +1,294 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>MCF: Deep Space Mission</title>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: #000; }
-        #canvas-container { width: 100vw; height: 100vh; display: block; }
-        
-        /* UI Overlay */
-        #ui-layer {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none; /* Let clicks pass through to 3D scene */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 40px;
-        }
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
 
-        h1 {
-            font-family: 'Arial', sans-serif;
-            font-weight: 900;
-            font-size: 5rem;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 10px;
-            margin: 0;
-            text-shadow: 0 0 30px rgba(255, 100, 50, 0.8);
-            pointer-events: auto;
-        }
+<script type="module">
+import * as THREE from 'three';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        .hud-text {
-            font-family: 'Courier New', monospace;
-            color: #00ffcc;
-            font-size: 14px;
-            text-shadow: 0 0 5px #00ffcc;
-        }
+const container = document.getElementById('canvas-container');
 
-        /* Loading Screen */
-        #loader {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            color: white; font-family: monospace; font-size: 24px;
-            transition: opacity 1s ease-out;
-        }
-    </style>
-</head>
-<body>
+// ---------- BASIC RENDERER / CAMERA / SCENE ----------
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x000000, 0.0025);
 
-    <!-- Loading Screen -->
-    <div id="loader">INITIALIZING SYSTEMS...</div>
+const camera = new THREE.PerspectiveCamera(
+  55,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  500
+);
+camera.position.set(0, 0.4, 7);
 
-    <!-- 3D Canvas -->
-    <div id="canvas-container"></div>
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+container.appendChild(renderer.domElement);
 
-    <!-- HTML UI Overlay -->
-    <div id="ui-layer">
-        <div class="hud-text">SYS: ONLINE // ORBIT: STABLE // MCF-PROTOCOLS: ACTIVE</div>
-        <div>
-            <h1>My CRM Fix</h1>
-            <p style="color: #aaa; font-family: sans-serif; font-size: 1.2rem; max-width: 600px; margin-top: 10px; pointer-events: auto;">
-                Next-Gen Customer Relationship Management Repair.
-                <br><br>
-                <button style="padding: 15px 40px; background: #ff4500; color: white; border: none; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 5px;">
-                    INITIATE LAUNCH
-                </button>
-            </p>
-        </div>
-        <div class="hud-text" style="text-align: right;">COORDINATES: 45.912, -12.004</div>
-    </div>
+// ---------- POSTPROCESSING (BLOOM FOR GLOW) ----------
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
 
-    <!-- Import Map for Three.js (No installation needed) -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.4, 0.4, 0.85
+);
+bloomPass.threshold = 0.0;
+bloomPass.strength = 1.5;
+bloomPass.radius = 0.6;
+composer.addPass(bloomPass);
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+// ---------- LIGHTING ----------
+const ambient = new THREE.AmbientLight(0x404040, 2.2);
+scene.add(ambient);
 
-        // --- SCENE SETUP ---
-        const scene = new THREE.Scene();
-        // Fog for depth (fades distant objects to black)
-        scene.fog = new THREE.FogExp2(0x000000, 0.002);
+const keyLight = new THREE.DirectionalLight(0xfff2cd, 2.5);
+keyLight.position.set(5, 8, 10);
+scene.add(keyLight);
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 5);
+const rimLight = new THREE.DirectionalLight(0x4da6ff, 1.5);
+rimLight.position.set(-6, 3, -4);
+scene.add(rimLight);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.toneMapping = THREE.ReinhardToneMapping;
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+// ---------- OPTIONAL: HDRI FOR REALISTIC REFLECTIONS ----------
+const pmrem = new THREE.PMREMGenerator(renderer);
+pmrem.compileEquirectangularShader();
 
-        // --- POST PROCESSING (BLOOM) ---
-        const renderScene = new RenderPass(scene, camera);
-        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.threshold = 0;
-        bloomPass.strength = 1.2; // Glow intensity
-        bloomPass.radius = 0.5;
+// TODO: replace with your own hosted HDR file or comment this block out if you don't have one
+new RGBELoader()
+  .setDataType(THREE.FloatType)
+  .load('https://raw.githubusercontent.com/YourUser/YourRepo/main/space_4k.hdr', (hdrTex) => {
+    const envMap = pmrem.fromEquirectangular(hdrTex).texture;
+    scene.environment = envMap;
+    scene.background = envMap; // comment this line if you prefer the black starfield only
+    hdrTex.dispose();
+    pmrem.dispose();
+  });
 
-        const composer = new EffectComposer(renderer);
-        composer.addPass(renderScene);
-        composer.addPass(bloomPass);
+// ---------- STARFIELD ----------
+const starsGeom = new THREE.BufferGeometry();
+const starCount = 4000;
+const starPositions = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount * 3; i++) {
+  starPositions[i] = (Math.random() - 0.5) * 300;
+}
+starsGeom.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+const starsMat = new THREE.PointsMaterial({
+  size: 0.15,
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0.9,
+  sizeAttenuation: true
+});
+const starsPoints = new THREE.Points(starsGeom, starsMat);
+scene.add(starsPoints);
 
-        // --- LIGHTING ---
-        const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
-        scene.add(ambientLight);
+// ---------- ASTEROID FIELD (INSTANCED) ----------
+const asteroidGeom = new THREE.DodecahedronGeometry(0.4, 0);
+const asteroidMat = new THREE.MeshStandardMaterial({
+  color: 0x777777,
+  roughness: 0.95,
+  metalness: 0.15,
+  flatShading: true
+});
+const asteroidCount = 600;
+const asteroids = new THREE.InstancedMesh(asteroidGeom, asteroidMat, asteroidCount);
+const dummy = new THREE.Object3D();
 
-        const sunLight = new THREE.PointLight(0xffaa00, 3, 100);
-        sunLight.position.set(10, 10, 10);
-        scene.add(sunLight);
+for (let i = 0; i < asteroidCount; i++) {
+  dummy.position.set(
+    (Math.random() - 0.5) * 60,
+    (Math.random() - 0.5) * 40,
+    (Math.random() - 0.5) * 60
+  );
+  dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+  const s = Math.random() * 0.7 + 0.1;
+  dummy.scale.set(s, s, s);
+  dummy.updateMatrix();
+  asteroids.setMatrixAt(i, dummy.matrix);
+}
+scene.add(asteroids);
 
-        // --- STARS (PARTICLE SYSTEM) ---
-        const starsGeometry = new THREE.BufferGeometry();
-        const starsCount = 5000;
-        const posArray = new Float32Array(starsCount * 3);
+// ---------- LION ASTRONAUT AVATAR ----------
+const lionGroup = new THREE.Group();
+scene.add(lionGroup);
 
-        for(let i = 0; i < starsCount * 3; i++) {
-            // Spread stars far out
-            posArray[i] = (Math.random() - 0.5) * 200; 
-        }
+// Suit body
+const bodyGeo = new THREE.BoxGeometry(1.5, 2.0, 1.0);
+const bodyMat = new THREE.MeshPhysicalMaterial({
+  color: 0xf2f2f2,
+  roughness: 0.35,
+  metalness: 0.4,
+  clearcoat: 0.6,
+  clearcoatRoughness: 0.3
+});
+const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+bodyMesh.position.y = -0.6;
+lionGroup.add(bodyMesh);
 
-        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const starsMaterial = new THREE.PointsMaterial({
-            size: 0.05,
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.8,
-        });
-        const starMesh = new THREE.Points(starsGeometry, starsMaterial);
-        scene.add(starMesh);
+// Arms
+const armGeo = new THREE.CapsuleGeometry(0.22, 0.8, 8, 16);
+const armMat = bodyMat.clone();
+const leftArm = new THREE.Mesh(armGeo, armMat);
+const rightArm = new THREE.Mesh(armGeo, armMat);
+leftArm.position.set(-1.0, -0.2, 0);
+rightArm.position.set(1.0, -0.2, 0);
+leftArm.rotation.z = 0.7;
+rightArm.rotation.z = -0.7;
+lionGroup.add(leftArm, rightArm);
 
-        // --- ASTEROIDS (INSTANCED MESH) ---
-        // Efficiently render 1000 asteroids
-        const asteroidGeometry = new THREE.IcosahedronGeometry(0.2, 0);
-        const asteroidMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x888888, 
-            roughness: 0.8,
-            flatShading: true 
-        });
-        const asteroids = new THREE.InstancedMesh(asteroidGeometry, asteroidMaterial, 1000);
-        
-        const dummy = new THREE.Object3D();
-        for (let i = 0; i < 1000; i++) {
-            dummy.position.set(
-                (Math.random() - 0.5) * 50,
-                (Math.random() - 0.5) * 50,
-                (Math.random() - 0.5) * 50
-            );
-            dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
-            const scale = Math.random() * 0.5 + 0.1;
-            dummy.scale.set(scale, scale, scale);
-            dummy.updateMatrix();
-            asteroids.setMatrixAt(i, dummy.matrix);
-        }
-        scene.add(asteroids);
+// Helmet outer glass
+const helmetOuterGeo = new THREE.SphereGeometry(1.1, 48, 48);
+const helmetOuterMat = new THREE.MeshPhysicalMaterial({
+  color: 0x6699ff,
+  metalness: 0.9,
+  roughness: 0.05,
+  transparent: true,
+  opacity: 0.25,
+  transmission: 0.9,
+  thickness: 0.4
+});
+const helmetOuter = new THREE.Mesh(helmetOuterGeo, helmetOuterMat);
+helmetOuter.position.y = 1.0;
+lionGroup.add(helmetOuter);
 
-        // --- LION ASTRONAUT MODEL ---
-        let lionModel;
-        
-        // NOTE: Since I cannot upload a file to your server, I am creating a placeholder
-        // 3D Geometry to represent the Lion. 
-        // REPLACE this section with: loader.load('path/to/lion.glb', ...)
-        
-        const group = new THREE.Group();
-        
-        // Helmet (Glass Sphere)
-        const helmetGeo = new THREE.SphereGeometry(1, 32, 32);
-        const helmetMat = new THREE.MeshPhysicalMaterial({
-            color: 0x88ccff,
-            metalness: 0.9,
-            roughness: 0.1,
-            transparent: true,
-            opacity: 0.3,
-            transmission: 0.9 // Glass effect
-        });
-        const helmet = new THREE.Mesh(helmetGeo, helmetMat);
-        group.add(helmet);
+// Inner head sphere (gives volume behind the face texture)
+const headGeo = new THREE.SphereGeometry(0.9, 32, 32);
+const headMat = new THREE.MeshStandardMaterial({ color: 0xffb366, roughness: 0.6 });
+const headMesh = new THREE.Mesh(headGeo, headMat);
+headMesh.position.y = 1.0;
+lionGroup.add(headMesh);
 
-        // Head (Orange Sphere)
-        const headGeo = new THREE.SphereGeometry(0.7, 32, 32);
-        const headMat = new THREE.MeshStandardMaterial({ color: 0xffa500 });
-        const head = new THREE.Mesh(headGeo, headMat);
-        group.add(head);
+// Lion face plane (uses your lion PNG)
+// TODO: change this URL to your actual lion face texture (square PNG, ideally transparent BG)
+const lionFaceTextureUrl = 'https://raw.githubusercontent.com/YourUser/YourRepo/main/lion-face.png';
 
-        // Suit Body (White Box)
-        const bodyGeo = new THREE.BoxGeometry(1.2, 1.5, 0.8);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = -1.2;
-        group.add(body);
+const texLoader = new THREE.TextureLoader();
+texLoader.load(lionFaceTextureUrl, (lionTex) => {
+  lionTex.encoding = THREE.sRGBEncoding;
+  const faceGeo = new THREE.PlaneGeometry(1.4, 1.4);
+  const faceMat = new THREE.MeshBasicMaterial({
+    map: lionTex,
+    transparent: true
+  });
+  const faceMesh = new THREE.Mesh(faceGeo, faceMat);
+  faceMesh.position.set(0, 1.0, 0.82); // slightly in front of head, inside helmet
+  lionGroup.add(faceMesh);
+});
 
-        // Jetpack Fire (Point Light + Mesh)
-        const fireGeo = new THREE.ConeGeometry(0.2, 0.8, 8);
-        const fireMat = new THREE.MeshBasicMaterial({ color: 0xff4400 });
-        const fire = new THREE.Mesh(fireGeo, fireMat);
-        fire.rotation.x = Math.PI;
-        fire.position.set(0, -2.2, 0.4);
-        group.add(fire);
+// MCF chest plate
+const mcfPlateGeo = new THREE.PlaneGeometry(0.8, 0.45);
+const mcfPlateMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const mcfPlate = new THREE.Mesh(mcfPlateGeo, mcfPlateMat);
+mcfPlate.position.set(0, -0.4, 0.51);
+lionGroup.add(mcfPlate);
 
-        scene.add(group);
-        lionModel = group;
+// Simple MCF text by using a texture generated from canvas
+(function createMcfText() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#e53935';
+  ctx.font = 'bold 72px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('MCF', canvas.width / 2, canvas.height / 2);
 
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.encoding = THREE.sRGBEncoding;
 
-        // --- INTERACTION: MOUSE MOVE ---
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
+  const geo = new THREE.PlaneGeometry(0.8, 0.4);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.copy(mcfPlate.position);
+  mesh.position.z += 0.01;
+  lionGroup.add(mesh);
+})();
 
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
+// Jetpack cones (for flame)
+const jetpackGeo = new THREE.CylinderGeometry(0.35, 0.5, 0.6, 16);
+const jetpackMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.6, roughness: 0.3 });
+const jetpack = new THREE.Mesh(jetpackGeo, jetpackMat);
+jetpack.position.set(0, -1.7, -0.25);
+jetpack.rotation.x = Math.PI / 2;
+lionGroup.add(jetpack);
 
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - windowHalfX);
-            mouseY = (event.clientY - windowHalfY);
-        });
+const flameGeo = new THREE.ConeGeometry(0.25, 1.4, 12);
+const flameMat = new THREE.MeshBasicMaterial({ color: 0xff4411 });
+const flameMesh = new THREE.Mesh(flameGeo, flameMat);
+flameMesh.position.set(0, -2.3, -0.25);
+lionGroup.add(flameMesh);
 
-        // Hide Loader
-        setTimeout(() => {
-            const loader = document.getElementById('loader');
-            loader.style.opacity = '0';
-            setTimeout(() => loader.remove(), 1000);
-        }, 1500);
+// Emissive point light to make flame bloom
+const flameLight = new THREE.PointLight(0xff4400, 6, 20);
+flameLight.position.copy(flameMesh.position);
+scene.add(flameLight);
 
-        // --- ANIMATION LOOP ---
-        const clock = new THREE.Clock();
+// Place avatar slightly in front of origin
+lionGroup.position.set(0, 0, 0);
 
-        function animate() {
-            requestAnimationFrame(animate);
+// ---------- CAMERA DRIFT & INTERACTION ----------
+let targetCamX = 0;
+let targetCamY = 0;
 
-            const elapsedTime = clock.getElapsedTime();
+window.addEventListener('mousemove', (e) => {
+  const xNorm = (e.clientX / window.innerWidth) * 2 - 1;
+  const yNorm = (e.clientY / window.innerHeight) * 2 - 1;
+  targetCamX = xNorm * 0.6;
+  targetCamY = -yNorm * 0.4;
+});
 
-            // Rotate Stars
-            starMesh.rotation.y += 0.0005;
+// ---------- ANIMATION LOOP ----------
+const clock = new THREE.Clock();
 
-            // Rotate Asteroids
-            asteroids.rotation.x += 0.0002;
-            asteroids.rotation.y += 0.0005;
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
 
-            // Float Lion
-            if(lionModel) {
-                lionModel.position.y = Math.sin(elapsedTime) * 0.1;
-                lionModel.rotation.y += 0.005;
-                
-                // Parallax Effect (Lion follows mouse slightly)
-                targetX = mouseX * 0.001;
-                targetY = mouseY * 0.001;
-                
-                lionModel.rotation.x += 0.05 * (targetY - lionModel.rotation.x);
-                lionModel.rotation.y += 0.05 * (targetX - lionModel.rotation.y);
-            }
+  // Subtle avatar bob + rotation
+  lionGroup.position.y = Math.sin(t * 1.2) * 0.15;
+  lionGroup.rotation.y = Math.sin(t * 0.5) * 0.25;
 
-            // Flicker Jetpack
-            fire.scale.y = (Math.random() * 0.5) + 0.8;
+  // Flame flicker
+  const flameScale = 0.8 + Math.sin(t * 30) * 0.2;
+  flameMesh.scale.set(1, flameScale, 1);
+  flameLight.intensity = 5 + Math.sin(t * 25) * 1.5;
 
-            // Render with Bloom
-            composer.render();
-        }
+  // Asteroid slow spin
+  asteroids.rotation.y += 0.0008;
+  asteroids.rotation.x += 0.0003;
 
-        animate();
+  // Stars slow drift
+  starsPoints.rotation.y += 0.0003;
 
-        // Handle Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-</body>
-</html>
+  // Camera parallax
+  camera.position.x += (targetCamX - camera.position.x) * 0.03;
+  camera.position.y += (targetCamY - camera.position.y) * 0.03;
+  camera.lookAt(0, 0, 0);
+
+  composer.render();
+}
+animate();
+
+// ---------- RESIZE ----------
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
